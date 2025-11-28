@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plug and Go - Payment</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Import Google Font: Poppins for a modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #000;
+      line-height: 1.6;
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+    /* Header */
+    header {
+      background: #000;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    /* Payment Container */
+    .payment-container {
+      background: #f9f9f9;
+      padding: 30px;
+      border: 2px solid #000;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 90%;
+      margin: 40px auto;
+      animation: fadeIn 1s ease-in-out;
+    }
+    .payment-container h2 {
+      text-align: center;
+      color: #000;
+      margin-bottom: 30px;
+    }
+    /* Payment Options */
+    .payment-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .payment-option {
+      flex: 1 1 250px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 20px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      text-align: center;
+      animation: slideIn 0.5s ease-in-out;
+    }
+    .payment-option.selected {
+      border-color: #03a9f4;
+      box-shadow: 0 4px 8px rgba(3,169,244,0.2);
+      transform: translateY(-5px);
+    }
+    .payment-option h3 {
+      margin-bottom: 10px;
+      color: #000;
+    }
+    .payment-option p {
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    .payment-option input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #000;
+      border-radius: 5px;
+      background: #fff;
+      color: #000;
+      transition: border-color 0.3s ease;
+    }
+    .payment-option input:focus {
+      border-color: #03a9f4;
+      outline: none;
+    }
+    .payment-option[data-type="ticket-cash"] {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    /* Proceed Button */
+    .proceed-button {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .proceed-button button {
+      padding: 10px 20px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+      font-size: 1rem;
+    }
+    .proceed-button button:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    /* Contact/Support Section */
+    .contact-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .contact-section h3 {
+      margin-bottom: 15px;
+    }
+    .contact-section textarea {
+      width: 80%;
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #000;
+      border-radius: 5px;
+      resize: vertical;
+      font-size: 1rem;
+      color: #000;
+    }
+    .contact-section button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+      font-size: 1rem;
+    }
+    .contact-section button:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    /* Payment Success Message */
+    #paymentSuccess {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      margin: 20px auto;
+      border: 2px solid #03a9f4;
+      border-radius: 10px;
+      background: #e0f7fa;
+      color: #00796b;
+      max-width: 600px;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #000;
+      color: #fff;
+      margin-top: 30px;
+      box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+    footer p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes slideIn {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+  
+</head>
+<body>
+  <header>
+    <h1>Plug and Go</h1>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      {% if session.get('logged_in') %}
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+      {% endif %}
+    </nav>
+  </header>
+   <!-- Flash Messages Alert -->
+   {% with messages = get_flashed_messages(with_categories=True) %}
+   {% if messages %}
+     <script>
+       window.onload = function() {
+         {% for category, message in messages %}
+           alert("{{ message }}");
+         {% endfor %}
+       }
+     </script>
+   {% endif %}
+ {% endwith %}
+
+  <div class="payment-container">
+    <h2>Payment</h2>
+    
+    <!-- Payment Success Message -->
+    <div id="paymentSuccess">
+      <h3>Payment Successful!</h3>
+      <p>Thank you for your payment.</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('payment') }}">
+      <!-- Hidden fields for station and booking details -->
+      <input type="hidden" name="station_id" value="{{ station_id }}">
+      <input type="hidden" name="booking_date" value="{{ booking_date }}">
+      <input type="hidden" name="booking_time" value="{{ booking_time }}">
+
+      <div class="payment-options">
+        <div class="payment-option" data-type="card">
+          <h3>Credit/Debit Card</h3>
+          <p>Pay using your credit or debit card.</p>
+          <input type="text" name="card_number" placeholder="Card Number">
+          <input type="text" name="expiry_date" placeholder="Expiry Date">
+          <input type="text" name="cvv" placeholder="CVV">
+        </div>
+        <div class="payment-option" data-type="upi">
+          <h3>UPI</h3>
+          <p>Pay using UPI ID or QR code.</p>
+          <input type="text" name="upi_id" placeholder="UPI ID">
+        </div>
+        <div class="payment-option" data-type="ticket-cash">
+          <h3>Ticket Cash (Fixed Rate)</h3>
+          <p>Pay a fixed rate of ₹20 for any station.</p>
+        </div>
+      </div>
+
+      <div class="proceed-button">
+        <button type="submit">Proceed to Payment</button>
+      </div>
+    </form>
+
+    <!-- Contact/Support Section -->
+    <div class="contact-section">
+      <h3>Contact Us</h3>
+      <textarea id="contactMessage" placeholder="Share any issues or feedback..."></textarea>
+      <button type="button" onclick="submitContactForm()">Submit</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2023 Plug and Go. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Payment option selection logic
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    let selectedPaymentType = null;
+    paymentOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        paymentOptions.forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedPaymentType = option.getAttribute('data-type');
+        
+        // Update required attributes based on selection
+        if(selectedPaymentType === 'card'){
+          document.querySelector('input[name="card_number"]').required = true;
+          document.querySelector('input[name="expiry_date"]').required = true;
+          document.querySelector('input[name="cvv"]').required = true;
+          document.querySelector('input[name="upi_id"]').required = false;
+        } else if(selectedPaymentType === 'upi'){
+          document.querySelector('input[name="card_number"]').required = false;
+          document.querySelector('input[name="expiry_date"]').required = false;
+          document.querySelector('input[name="cvv"]').required = false;
+          document.querySelector('input[name="upi_id"]').required = true;
+        } else {
+          // Ticket Cash option: no input required
+          document.querySelector('input[name="card_number"]').required = false;
+          document.querySelector('input[name="expiry_date"]').required = false;
+          document.querySelector('input[name="cvv"]').required = false;
+          document.querySelector('input[name="upi_id"]').required = false;
+        }
+      });
+    });
+
+    // Submit Contact Form
+    function submitContactForm() {
+      const message = document.getElementById('contactMessage').value;
+      if(!message){
+        alert('Please enter a message!');
+        return;
+      }
+      alert('Thank you for your feedback! We will get back to you soon.');
+      document.getElementById('contactMessage').value = '';
+    }
+    
+    // Payment Success Logic:
+    // If the URL contains a query parameter 'success=1', show the payment success message.
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('success') === '1'){
+      document.getElementById('paymentSuccess').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

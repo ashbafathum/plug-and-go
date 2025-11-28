@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plug and Go - Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Import Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #000;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    /* Header and Navigation */
+    header {
+      background: #000;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid #000;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    /* Container for Login/Signup Forms */
+    .container {
+      padding: 40px 20px;
+      max-width: 500px;
+      margin: 80px auto 100px auto; /* extra bottom margin so footer does not overlap */
+      background: #f9f9f9;
+      border: 2px solid #000;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .toggle-buttons {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .toggle-buttons button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .toggle-buttons button.active {
+      background-color: #333;
+      transform: scale(1.05);
+    }
+    .toggle-buttons button:hover {
+      background-color: #333;
+      transform: scale(1.05);
+    }
+    .form-container {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      display: none;
+    }
+    .form-container.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    form {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    form h2 {
+      margin-bottom: 20px;
+      color: #000;
+    }
+    form input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #000;
+      border-radius: 8px;
+      background: #fff;
+      color: #000;
+      box-sizing: border-box;
+    }
+    form input::placeholder {
+      color: #888;
+    }
+    form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+      box-sizing: border-box;
+    }
+    form button:hover {
+      background-color: #333;
+      transform: scale(1.05);
+    }
+    form p {
+      margin-top: 10px;
+    }
+    form p a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    form p a:hover {
+      text-decoration: underline;
+    }
+    /* Footer */
+    footer {
+      background: #000;
+      padding: 10px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid #000;
+      position: relative;
+    }
+    footer p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes slideIn {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Plug and Go</h1>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="toggle-buttons">
+      <button id="loginBtn" class="active">Login</button>
+      <button id="signupBtn">Sign Up</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginFormContainer" class="form-container active">
+      <form id="loginForm" action="{{ url_for('login') }}" method="POST">
+        <h2>Login</h2>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+        <p><a href="#">Forgot Password?</a></p>
+      </form>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupFormContainer" class="form-container">
+      <form id="signupForm">
+        <h2>Sign Up</h2>
+        <input type="text" name="fullname" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2023 Plug and Go. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Toggle between Login and Signup forms with smooth animations
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const loginFormContainer = document.getElementById('loginFormContainer');
+    const signupFormContainer = document.getElementById('signupFormContainer');
+
+    loginBtn.addEventListener('click', () => {
+      loginBtn.classList.add('active');
+      signupBtn.classList.remove('active');
+      loginFormContainer.classList.add('active');
+      signupFormContainer.classList.remove('active');
+    });
+
+    signupBtn.addEventListener('click', () => {
+      signupBtn.classList.add('active');
+      loginBtn.classList.remove('active');
+      signupFormContainer.classList.add('active');
+      loginFormContainer.classList.remove('active');
+    });
+
+    // Signup Form Submission
+    document.getElementById('signupForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const password = this.querySelector('input[name="password"]').value;
+      const confirmPassword = this.querySelector('input[name="confirm_password"]').value;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      alert('Signup successful! Please login.');
+      loginBtn.click(); // Switch back to login form
+    });
+  </script>
+</body>
+</html>

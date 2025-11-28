@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plug and Go - Home</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Import Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #000;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    /* Header and Navigation */
+    header {
+      background: #000;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid #000;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    /* Hero Section */
+    .hero {
+      height: 60vh;
+      background: url('{{ url_for("static", filename="images/ev-hero.jpg") }}') no-repeat center center/cover;
+      filter: grayscale(100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 1;
+    }
+    .hero h1, 
+    .hero p, 
+    .hero button {
+      z-index: 2;
+      animation: fadeIn 2s ease-in-out;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      animation: slideIn 1.5s ease-in-out;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      margin: 15px 0;
+      max-width: 600px;
+      color: #333;
+      animation: slideIn 1.5s ease-in-out;
+    }
+    .hero button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      color: #fff;
+      background: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+      animation: fadeIn 2.5s ease-in-out;
+    }
+    .hero button:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    /* Two-Column Layout: Nearby Stations List & Mini Map */
+    .map-layout {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: stretch;
+      width: 90%;
+      max-width: 1200px;
+      margin: 40px auto;
+    }
+    .stations-list,
+    .map-section {
+      flex: 1;
+      min-width: 300px;
+      padding: 20px;
+    }
+    /* Stations List Styling */
+    .stations-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      animation: slideInLeft 1s ease-out;
+    }
+    .stations-list h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .station-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border: 1px solid #000;
+      border-radius: 8px;
+      background: #f7f7f7;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .station-item:hover {
+      background: #eaeaea;
+      transform: translateX(5px);
+    }
+    .station-item span {
+      font-size: 1rem;
+      color: #333;
+    }
+    .station-item .search-icon {
+      font-size: 1.2rem;
+      color: #000;
+      transition: color 0.3s ease;
+    }
+    .station-item .search-icon:hover {
+      color: #333;
+    }
+    /* Mini Map */
+    #miniMap {
+      height: 300px;
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid #000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: #f9f9f9;
+      position: relative;
+      z-index: 1;
+    }
+    #miniMap:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    /* About Us Section */
+    #about {
+      width: 90%;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 40px 20px;
+      border-top: 2px solid #000;
+      text-align: center;
+      animation: fadeIn 2s ease-in-out;
+      /* Faded hero background with overlay */
+      background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+                  url('{{ url_for("static", filename="images/ev-hero.jpg") }}') no-repeat center center/cover;
+      background-size: cover;
+    }
+    #about h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    #about p {
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.8;
+    }
+    /* Footer */
+    footer {
+      background: #fff;
+      padding: 10px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      border-top: 2px solid #000;
+      margin-top: 40px;
+      position: relative;
+    }
+    footer p {
+      font-size: 0.9rem;
+      color: #000;
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes slideIn {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideInLeft {
+      0% { transform: translateX(-30px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Plug and Go</h1>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      {% if session.get('logged_in') %}
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+      {% endif %}
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Welcome to Plug and Go</h1>
+    <p>
+      Plug and Go is your one-stop solution for finding electric vehicle charging stations near you.
+      Whether you're on a road trip or just need a quick charge, we've got you covered.
+      Join us today and make your EV journey seamless and stress-free!
+    </p>
+    <button onclick="location.href='{{ url_for('login') }}'">Find Charging Stations</button>
+  </div>
+
+  <!-- Two-Column Layout: Nearby Stations List & Mini Map -->
+  <div class="map-layout">
+    <div class="stations-list">
+      <h2>Nearby Stations</h2>
+      <div class="station-item" data-index="0">
+        <span>EVOK Charging Station</span>
+        <span class="search-icon">&#128269;</span>
+      </div>
+      <div class="station-item" data-index="1">
+        <span>KSEB Charging Station</span>
+        <span class="search-icon">&#128269;</span>
+      </div>
+      <div class="station-item" data-index="2">
+        <span>BPCL Charging Station</span>
+        <span class="search-icon">&#128269;</span>
+      </div>
+    </div>
+    <div class="map-section">
+      <div id="miniMap"></div>
+    </div>
+  </div>
+
+  <!-- About Us Section -->
+  <section id="about">
+    <h2>About Us</h2>
+    <p>
+      We are a passionate group of college students dedicated to innovating and simplifying the electric vehicle experience.
+      Through Plug and Go, our goal is to provide a reliable, user-friendly solution for locating charging stations,
+      making EV journeys easier and more sustainable. Join us as we drive toward a greener future!
+    </p>
+  </section>
+
+  <footer>
+    <p>&copy; 2023 Plug and Go. All rights reserved.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Initialize the mini map
+    const miniMap = L.map('miniMap').setView([11.80248, 76.00513], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(miniMap);
+
+    // Define station markers with updated coordinates and names
+    const stations = [
+      { lat: 11.80481, lng: 76.00955, name: 'EVOK Charging Station' },
+      { lat: 11.80174, lng: 76.00393, name: 'KSEB Charging Station' },
+      { lat: 11.79800, lng: 76.00608, name: 'BPCL Charging Station' }
+    ];
+    
+    // Store markers for later reference
+    const markers = [];
+    stations.forEach((station, index) => {
+      const marker = L.marker([station.lat, station.lng]).addTo(miniMap);
+      marker.bindPopup(`<b>${station.name}</b>`);
+      markers.push(marker);
+    });
+
+    // Add click event to station items to highlight respective marker
+    document.querySelectorAll('.station-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const index = this.getAttribute('data-index');
+        const marker = markers[index];
+        if (marker) {
+          miniMap.setView(marker.getLatLng(), 16, { animate: true });
+          marker.openPopup();
+          // Optional: add temporary bounce effect
+          marker._icon.classList.add('highlight');
+          setTimeout(() => {
+            marker._icon.classList.remove('highlight');
+          }, 1000);
+        }
+      });
+    });
+  </script>
+  <style>
+    /* Optional marker highlight animation */
+    .highlight {
+      animation: bounce 0.6s ease;
+    }
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</body>
+</html>

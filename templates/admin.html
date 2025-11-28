@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plug and Go - Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Import Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background: #fff;
+      color: #000;
+      line-height: 1.6;
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+    /* Header */
+    header {
+      background: #000;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    /* Admin Container */
+    .admin-container {
+      background: #f9f9f9;
+      padding: 30px;
+      border: 2px solid #000;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 900px;
+      width: 90%;
+      margin: 40px auto;
+    }
+    .admin-container h2 {
+      text-align: center;
+      color: #000;
+      margin-bottom: 30px;
+    }
+    /* Add Station Button */
+    .admin-actions {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .admin-actions button {
+      padding: 10px 20px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .admin-actions button:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    /* Add Station Form */
+    .edit-form {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .edit-form.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .edit-form h3 {
+      color: #000;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .edit-form form {
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #000;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .edit-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #000;
+      border-radius: 5px;
+      background: #fff;
+      color: #000;
+    }
+    .edit-form button {
+      width: 100%;
+      padding: 10px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .edit-form button:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    /* Station List Cards */
+    .station-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 50px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .station-card {
+      flex: 0 1 350px;  /* Fixed width; do not grow */
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 15px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      min-height: 180px;  /* Ensure uniform height */
+    }
+    .station-card:hover {
+      box-shadow: 0 4px 8px rgba(3, 169, 244, 0.2);
+      transform: translateY(-5px);
+    }
+    .station-card.selected {
+      border-color: #03a9f4;
+      background-color: rgba(3, 169, 244, 0.1);
+    }
+    .station-card h3 {
+      margin-bottom: 10px;
+      color: #000;
+      font-size: 1.2rem;
+    }
+    .station-card p {
+      margin: 5px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+    /* User List Cards */
+    .user-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 50px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .user-card {
+      flex: 0 1 350px;  /* Fixed width; do not grow */
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 15px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      min-height: 180px;  /* Ensure uniform height */
+    }
+    .user-card:hover {
+      box-shadow: 0 4px 8px rgba(3, 169, 244, 0.2);
+      transform: translateY(-5px);
+    }
+    .user-card h3 {
+      margin-bottom: 10px;
+      color: #000;
+      font-size: 1.2rem;
+    }
+    .user-card p {
+      margin: 5px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+    /* Action Buttons for both stations and users */
+    .action-buttons {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column; /* Stack vertically */
+      gap: 10px;
+      justify-content: center;
+    }
+    .action-buttons form {
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+    .action-buttons button,
+    .action-buttons form button {
+      padding: 6px 10px;
+      background: #000;
+      color: #fff;
+      border: none;
+      outline: none;
+      border-radius: 8px; /* Rectangle with slightly rounded corners */
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+      font-size: 0.9rem;
+      min-width: 100px;
+      text-align: center;
+      display: inline-block;
+    }
+    .action-buttons button:hover,
+    .action-buttons form button:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    /* Footer - Static at bottom */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #000;
+      color: #fff;
+      margin-top: 30px;
+      box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      /* Removed fixed positioning */
+      position: relative;
+    }
+    footer p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Plug and Go</h1>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('profile') }}">Profile</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <div class="admin-container">
+    <h2>Admin Dashboard</h2>
+
+    <!-- Admin Actions: Add Station -->
+    <div class="admin-actions">
+      <button onclick="toggleAddStationForm()">Add Station</button>
+    </div>
+    
+    <!-- Add Station Form -->
+    <div id="addStationForm" class="edit-form">
+      <h3>Add New Station</h3>
+      <form action="{{ url_for('add_station') }}" method="POST">
+        <input type="text" name="name" placeholder="Station Name" required>
+        <input type="text" name="location" placeholder="Location" required>
+        <input type="number" name="available_slots" placeholder="Available Slots" required>
+        <input type="number" step="0.01" name="price_per_kwh" placeholder="Price per kWh" required>
+        <button type="submit">Add Station</button>
+      </form>
+    </div>
+
+    <!-- Stations List -->
+    <div class="station-list">
+      <h3 style="font-family: 'Poppins', sans-serif; color: #000; width: 100%; text-align: center;">Charging Stations</h3>
+      {% for station in stations %}
+        <div class="station-card" id="station-{{ station.id }}" data-id="{{ station.id }}">
+          <h3>{{ station.name }}</h3>
+          <p>Location: {{ station.location }}</p>
+          <p>Available Slots: {{ station.available_slots }}</p>
+          <p>Price per kWh: ${{ station.price_per_kwh }}</p>
+          <div class="action-buttons">
+            <button onclick="toggleEditStationForm({{ station.id }})">Edit</button>
+            <form action="{{ url_for('delete_station', station_id=station.id) }}" method="POST" style="display:inline;">
+              <input type="hidden" name="_method" value="DELETE">
+              <button type="submit" onclick="return confirm('Are you sure you want to delete this station?');">Delete</button>
+            </form>
+          </div>
+          <!-- Edit Station Form -->
+          <div id="editStationForm-{{ station.id }}" class="edit-form">
+            <h3>Edit Station</h3>
+            <form action="{{ url_for('edit_station', station_id=station.id) }}" method="POST">
+              <input type="text" name="name" value="{{ station.name }}" required>
+              <input type="text" name="location" value="{{ station.location }}" required>
+              <input type="number" name="available_slots" value="{{ station.available_slots }}" required>
+              <input type="number" step="0.01" name="price_per_kwh" value="{{ station.price_per_kwh }}" required>
+              <button type="submit">Update Station</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Users List -->
+    <div class="user-list">
+      <h3 style="font-family: 'Poppins', sans-serif; color: #000; width: 100%; text-align: center;">Users</h3>
+      {% for user in users %}
+        <div class="user-card" id="user-{{ user.id }}" data-id="{{ user.id }}">
+          <h3>{{ user.username }}</h3>
+          <p>Email: {{ user.email }}</p>
+          <p>Role: {{ user.role }}</p>
+          <div class="action-buttons">
+            <button onclick="toggleEditUserForm({{ user.id }})">Edit</button>
+            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;">
+              <input type="hidden" name="_method" value="DELETE">
+              <button type="submit" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+            </form>
+          </div>
+          <!-- Edit User Form -->
+          <div id="editUserForm-{{ user.id }}" class="edit-form">
+            <h3>Edit User</h3>
+            <form action="{{ url_for('edit_user', user_id=user.id) }}" method="POST">
+              <input type="text" name="username" value="{{ user.username }}" required>
+              <input type="email" name="email" value="{{ user.email }}" required>
+              <select name="role" required>
+                <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+              </select>
+              <button type="submit">Update User</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2023 Plug and Go. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Toggle Add Station Form
+    function toggleAddStationForm() {
+      const form = document.getElementById('addStationForm');
+      form.classList.toggle('active');
+    }
+    // Toggle Edit Station Form
+    function toggleEditStationForm(stationId) {
+      const form = document.getElementById(`editStationForm-${stationId}`);
+      form.classList.toggle('active');
+    }
+    // Toggle Edit User Form
+    function toggleEditUserForm(userId) {
+      const form = document.getElementById(`editUserForm-${userId}`);
+      form.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>

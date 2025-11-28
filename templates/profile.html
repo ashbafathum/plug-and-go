@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plug and Go - Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Import Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #000;
+      line-height: 1.6;
+      padding-top: 100px; /* To accommodate fixed header */
+      padding-bottom: 100px; /* To avoid footer overlapping */
+    }
+    /* Header */
+    header {
+      background: #000;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      font-family: 'Poppins', sans-serif;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    nav {
+      margin-top: 10px;
+      font-family: 'Poppins', sans-serif;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    nav a:active {
+      transform: scale(0.95);
+    }
+    /* Profile Container */
+    .profile-container {
+      background: #f9f9f9;
+      padding: 30px;
+      border: 2px solid #000;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 900px;
+      width: 90%;
+      margin: 40px auto;
+    }
+    .profile-container h2 {
+      text-align: center;
+      color: #000;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 30px;
+    }
+    /* Station List as Cards */
+    .station-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .station-card {
+      flex: 1 1 280px;
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 15px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .station-card:hover {
+      box-shadow: 0 4px 8px rgba(3, 169, 244, 0.2);
+      transform: translateY(-5px);
+    }
+    .station-card.selected {
+      border-color: #03a9f4;
+      background-color: rgba(3, 169, 244, 0.1);
+    }
+    .station-card h3 {
+      margin-bottom: 10px;
+      font-family: 'Poppins', sans-serif;
+      color: #000;
+    }
+    .station-card p {
+      margin: 5px 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    /* Date and Time Picker */
+    .datetime-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .datetime-picker .input-group {
+      flex: 1 1 250px;
+      display: flex;
+      flex-direction: column;
+    }
+    .datetime-picker label {
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-family: 'Poppins', sans-serif;
+      color: #000;
+    }
+    .datetime-picker input {
+      padding: 10px;
+      border: 1px solid #000;
+      border-radius: 5px;
+      background: #fff;
+      color: #000;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+    .datetime-picker input:focus {
+      border-color: #03a9f4;
+      transform: scale(1.02);
+      outline: none;
+    }
+    /* Proceed Button */
+    .proceed-button {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .proceed-button button {
+      padding: 10px 20px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .proceed-button button:hover {
+      background-color: #333;
+      transform: scale(1.05);
+    }
+    .proceed-button button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    /* Booking Section */
+    .booking-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: space-around;
+      margin-top: 40px;
+    }
+    .booking-box {
+      flex: 1 1 300px;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .booking-box:hover {
+      transform: translateY(-5px);
+    }
+    .booking-box h3 {
+      font-family: 'Poppins', sans-serif;
+      color: #000;
+      margin-bottom: 15px;
+    }
+    .booking-box ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .booking-box li {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #000;
+      border-radius: 5px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .booking-box li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(3, 169, 244, 0.2);
+    }
+    .booking-box button {
+      padding: 5px 10px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .booking-box button:hover {
+      background: #333;
+    }
+    /* Footer */
+    footer {
+      background: #000;
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid #000;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+    footer p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes slideIn {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Plug and Go</h1>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+  </header>
+  <!-- Flash Messages Alert -->
+  {% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    <script>
+      window.onload = function() {
+        {% for category, message in messages %}
+          alert("{{ message }}");
+        {% endfor %}
+      }
+    </script>
+  {% endif %}
+{% endwith %}
+
+  <div class="profile-container">
+    <h2>Welcome, {{ username }}!</h2>
+
+    <!-- Booking Section: Station List and Date/Time Selectors -->
+    <div class="booking-details">
+      <h3 style="font-family: 'Poppins', sans-serif; color: #000; text-align: center; margin-bottom: 20px;">Book a Charging Station</h3>
+      
+      <!-- Station List -->
+      <div class="station-list">
+        {% for station in stations %}
+          <div class="station-card" data-id="{{ station.id }}">
+            <h3>{{ station.name }}</h3>
+            <p>Location: {{ station.location }}</p>
+            <p>Availability: {{ station.available_slots }} slots</p>
+            <p>Pricing: ${{ station.price_per_kwh }}/kWh</p>
+            <p>Distance: 1.2 km</p>
+          </div>
+        {% endfor %}
+      </div>
+      
+
+      <!-- Date and Time Picker -->
+      <div class="datetime-picker">
+        <div class="input-group">
+          <label for="bookingDate">Select Date:</label>
+          <input type="date" id="bookingDate" required>
+        </div>
+        <div class="input-group">
+          <label for="bookingTime">Select Time:</label>
+          <input type="time" id="bookingTime" required>
+        </div>
+      </div>
+
+      <!-- Proceed Button -->
+      <div class="proceed-button">
+        <button id="proceedBtn" disabled>Proceed to Payment</button>
+      </div>
+    </div>
+
+    <!-- Booking History Section -->
+    <div class="booking-section">
+      <!-- Booked Stations -->
+      <div class="booking-box booked-stations">
+        <h3>Booked Stations</h3>
+        <ul id="bookedStationsList">
+          {% for booking in bookings if not booking.is_expired %}
+            <li>
+              {{ booking.station.name }} - {{ booking.booking_date }} at {{ booking.booking_time }}
+              <button onclick="cancelBooking({{ booking.id }})">Cancel</button>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Booking History -->
+      <div class="booking-box history">
+        <h3>Booking History</h3>
+        <ul id="bookingHistoryList">
+          {% for booking in bookings %}
+            <li>
+              {{ booking.station.name }} - {{ booking.booking_date }} at {{ booking.booking_time }}
+              {% if booking.is_expired %}(Expired){% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2023 Plug and Go. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Select a charging station card
+    const stationCards = document.querySelectorAll('.station-card');
+    let selectedStation = null;
+
+    stationCards.forEach(card => {
+      card.addEventListener('click', () => {
+        // Deselect all cards
+        stationCards.forEach(c => c.classList.remove('selected'));
+        // Select clicked card
+        card.classList.add('selected');
+        selectedStation = card.getAttribute('data-id');
+        checkProceedButton();
+      });
+    });
+
+    // Date and Time inputs
+    const bookingDate = document.getElementById('bookingDate');
+    const bookingTime = document.getElementById('bookingTime');
+    const proceedBtn = document.getElementById('proceedBtn');
+
+    function checkProceedButton() {
+      if (selectedStation && bookingDate.value && bookingTime.value) {
+        proceedBtn.disabled = false;
+      } else {
+        proceedBtn.disabled = true;
+      }
+    }
+
+    bookingDate.addEventListener('change', checkProceedButton);
+    bookingTime.addEventListener('change', checkProceedButton);
+
+    // Proceed to Payment
+    proceedBtn.addEventListener('click', () => {
+      if (!selectedStation || !bookingDate.value || !bookingTime.value) {
+        alert('Please select a station, date, and time before proceeding.');
+        return;
+      }
+      const bookingDetails = {
+        stationId: selectedStation,
+        date: bookingDate.value,
+        time: bookingTime.value
+      };
+      window.location.href = `{{ url_for('payment') }}?station_id=${bookingDetails.stationId}&date=${bookingDetails.date}&time=${bookingDetails.time}`;
+    });
+
+    // Cancel Booking
+    function cancelBooking(bookingId) {
+      if (confirm('Are you sure you want to cancel this booking?')) {
+        fetch(`/cancel_booking/${bookingId}`, {
+          method: 'POST',
+        }).then(response => {
+          if (response.ok) {
+            window.location.reload();
+          }
+        });
+      }
+    }
+    // Define available time slots (modify as needed)
+  const timeSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+  const slotSelector = document.getElementById("slotSelector");
+  const bookingTimeInput = document.getElementById("bookingTime");
+
+  // Generate time slot buttons
+  timeSlots.forEach(time => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = time;
+    btn.style.margin = "5px";
+    btn.style.padding = "8px 12px";
+    btn.style.borderRadius = "5px";
+    btn.style.border = "none";
+    btn.style.background = "#000";
+    btn.style.color = "#fff";
+    btn.style.cursor = "pointer";
+    btn.addEventListener("click", () => {
+      // Remove active class from all buttons
+      document.querySelectorAll("#slotSelector button").forEach(b => b.style.background = "#000");
+      // Set this button as selected
+      btn.style.background = "#333";
+      // Set hidden input value to selected time
+      bookingTimeInput.value = time;
+      // Check if the Proceed button should be enabled.
+      checkProceedButton();
+    });
+    slotSelector.appendChild(btn);
+  });
+
+  // Override checkProceedButton() to verify bookingTimeInput value instead of an input[type="time"]
+  const bookingDate = document.getElementById('bookingDate');
+  const proceedBtn = document.getElementById('proceedBtn');
+  function checkProceedButton() {
+      if (bookingDate.value && bookingTimeInput.value) {
+          proceedBtn.disabled = false;
+      } else {
+          proceedBtn.disabled = true;
+      }
+  }
+  bookingDate.addEventListener('change', checkProceedButton);
+  </script>
+</body>
+</html>
